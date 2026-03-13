@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Semantic Book Search</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0f0e0c;
+      --surface: #1a1916;
+      --border: #2e2c28;
+      --gold: #c9a84c;
+      --gold-dim: #7a6330;
+      --text: #e8e3d8;
+      --muted: #7a7670;
+      --card-bg: #161513;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      min-height: 100vh;
+      padding: 0 1rem;
+    }
+
+    /* ── HEADER ── */
+    header {
+      text-align: center;
+      padding: 4rem 1rem 2rem;
+      position: relative;
+    }
+    header::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 50%;
+      transform: translateX(-50%);
+      width: 1px;
+      height: 60px;
+      background: linear-gradient(to bottom, transparent, var(--gold));
+    }
+    .label {
+      font-size: 0.7rem;
+      letter-spacing: 0.3em;
+      color: var(--gold);
+      text-transform: uppercase;
+      margin-bottom: 1.2rem;
+    }
+    h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(2.5rem, 6vw, 4.5rem);
+      font-weight: 700;
+      line-height: 1.1;
+      color: var(--text);
+      margin-bottom: 1rem;
+    }
+    h1 span { color: var(--gold); }
+    .subtitle {
+      color: var(--muted);
+      font-size: 1rem;
+      font-weight: 300;
+      max-width: 420px;
+      margin: 0 auto 2.5rem;
+      line-height: 1.6;
+    }
+
+    /* ── SEARCH BAR ── */
+    .search-wrap {
+      max-width: 640px;
+      margin: 0 auto 1rem;
+      position: relative;
+    }
+    .search-wrap input {
+      width: 100%;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 1rem;
+      padding: 1rem 7rem 1rem 1.4rem;
+      border-radius: 4px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .search-wrap input:focus { border-color: var(--gold-dim); }
+    .search-wrap input::placeholder { color: var(--muted); }
+
+    .search-wrap button {
+      position: absolute;
+      right: 6px; top: 50%;
+      transform: translateY(-50%);
+      background: var(--gold);
+      color: #0f0e0c;
+      border: none;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.8rem;
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      padding: 0.55rem 1.2rem;
+      border-radius: 2px;
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+    .search-wrap button:hover { opacity: 0.85; }
+    .search-wrap button:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    /* Example queries */
+    .examples {
+      max-width: 640px;
+      margin: 0 auto 3rem;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+    .ex-label { color: var(--muted); font-size: 0.78rem; width: 100%; }
+    .chip {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--muted);
+      font-size: 0.78rem;
+      padding: 0.3rem 0.8rem;
+      border-radius: 20px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .chip:hover { border-color: var(--gold-dim); color: var(--text); }
+
+    /* ── DIVIDER ── */
+    .divider {
+      max-width: 800px;
+      margin: 0 auto 2rem;
+      border: none;
+      border-top: 1px solid var(--border);
+    }
+
+    /* ── STATUS ── */
+    #status {
+      text-align: center;
+      color: var(--muted);
+      font-size: 0.85rem;
+      margin-bottom: 2rem;
+      min-height: 1.2rem;
+    }
+    #status.error { color: #e06c6c; }
+
+    /* ── RESULTS ── */
+    #results {
+      max-width: 800px;
+      margin: 0 auto 5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1px;
+    }
+
+    .result-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      padding: 1.5rem 1.8rem;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 0.5rem 2rem;
+      align-items: start;
+      opacity: 0;
+      transform: translateY(12px);
+      animation: fadeUp 0.35s forwards;
+      transition: border-color 0.2s;
+    }
+    .result-card:hover { border-color: var(--gold-dim); }
+    @keyframes fadeUp {
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .card-left { min-width: 0; }
+    .card-right { text-align: right; flex-shrink: 0; }
+
+    .book-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.15rem;
+      color: var(--text);
+      margin-bottom: 0.2rem;
+    }
+    .book-author {
+      font-size: 0.82rem;
+      color: var(--gold);
+      margin-bottom: 0.7rem;
+      letter-spacing: 0.02em;
+    }
+    .book-desc {
+      font-size: 0.87rem;
+      color: var(--muted);
+      line-height: 1.65;
+    }
+
+    .genre-badge {
+      display: inline-block;
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      font-size: 0.68rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 0.2rem 0.6rem;
+      border-radius: 2px;
+      margin-bottom: 0.6rem;
+    }
+
+    .similarity {
+      font-size: 1.4rem;
+      font-family: 'Playfair Display', serif;
+      color: var(--gold);
+    }
+    .sim-label {
+      font-size: 0.65rem;
+      color: var(--muted);
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    .rank {
+      width: 24px; height: 24px;
+      background: var(--border);
+      border-radius: 50%;
+      font-size: 0.72rem;
+      color: var(--muted);
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 0 0.5rem auto;
+    }
+
+    /* Loading spinner */
+    .spinner {
+      display: inline-block;
+      width: 14px; height: 14px;
+      border: 2px solid var(--border);
+      border-top-color: var(--gold);
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      vertical-align: middle;
+      margin-right: 6px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+
+<header>
+  <p class="label">Powered by Endee Vector Database</p>
+  <h1>Semantic<br/><span>Book Search</span></h1>
+  <p class="subtitle">Search by meaning, not keywords. Describe what you're looking for and find the perfect book.</p>
+</header>
+
+<div class="search-wrap">
+  <input
+    type="text"
+    id="queryInput"
+    placeholder="e.g. a lonely teenager finding his place in the world"
+    autocomplete="off"
+  />
+  <button id="searchBtn" onclick="search()">Search</button>
+</div>
+
+<div class="examples">
+  <span class="ex-label">Try:</span>
+  <span class="chip" onclick="setQuery(this)">surviving alone on another planet</span>
+  <span class="chip" onclick="setQuery(this)">government controlling people's thoughts</span>
+  <span class="chip" onclick="setQuery(this)">magic school and friendship</span>
+  <span class="chip" onclick="setQuery(this)">building good habits step by step</span>
+  <span class="chip" onclick="setQuery(this)">epic fantasy quest with a ring</span>
+</div>
+
+<hr class="divider"/>
+<div id="status"></div>
+<div id="results"></div>
+
+<script>
+  const API = 'http://localhost:3000'; // your Express backend
+
+  function setQuery(el) {
+    document.getElementById('queryInput').value = el.textContent;
+    search();
+  }
+
+  document.getElementById('queryInput').addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') search();
+  });
+
+  async function search() {
+    const query = document.getElementById('queryInput').value.trim();
+    if (!query) return;
+
+    const btn = document.getElementById('searchBtn');
+    const status = document.getElementById('status');
+    const results = document.getElementById('results');
+
+    btn.disabled = true;
+    results.innerHTML = '';
+    status.className = '';
+    status.innerHTML = `<span class="spinner"></span> Searching...`;
+
+    try {
+      const res = await fetch(`${API}/search?q=${encodeURIComponent(query)}&limit=5`);
+      if (!res.ok) throw new Error(`Server error: ${res.status}`);
+      const data = await res.json();
+
+      if (!data.results || data.results.length === 0) {
+        status.textContent = 'No results found.';
+        return;
+      }
+
+      status.textContent = `${data.results.length} books found for "${query}"`;
+
+      data.results.forEach((book, i) => {
+        const pct = Math.round(book.similarity * 100);
+        const card = document.createElement('div');
+        card.className = 'result-card';
+        card.style.animationDelay = `${i * 60}ms`;
+        card.innerHTML = `
+          <div class="card-left">
+            <span class="genre-badge">${book.genre}</span>
+            <div class="book-title">${book.title}</div>
+            <div class="book-author">${book.author}</div>
+            <div class="book-desc">${book.description}</div>
+          </div>
+          <div class="card-right">
+            <div class="rank">${i + 1}</div>
+            <div class="similarity">${pct}%</div>
+            <div class="sim-label">match</div>
+          </div>
+        `;
+        results.appendChild(card);
+      });
+
+    } catch (err) {
+      status.className = 'error';
+      status.textContent = `Error: ${err.message}. Is the server running? (node server/index.js)`;
+    } finally {
+      btn.disabled = false;
+    }
+  }
+</script>
+
+</body>
+</html>

@@ -57,6 +57,22 @@ The server listens on port `8080`. For detailed setup paths, supported operating
 - [Getting Started](./docs/getting-started.md)
 - [Hosted Quick Start Docs](https://docs.endee.io/quick-start)
 
+## Featured Project: Semantic Book Search
+
+As part of the recruitment process for **Endee.io**, I have developed a **Semantic Book Search Engine** that demonstrates the power of vector similarity search.
+
+- **Location**: [apps/semantic-book-search](./apps/semantic-book-search)
+- **Use Case**: Semantic Querying of literature dataset
+- **Tech Stack**: Node.js, Express, Endee, Transformers.js
+
+### How to Run
+1. Navigate to the project: `cd apps/semantic-book-search`
+2. Install dependencies: `npm install`
+3. Seed the database: `npm run ingest`
+4. Start the server: `npm start`
+
+---
+
 ## Use Cases
 
 ### RAG and AI Retrieval
