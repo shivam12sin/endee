@@ -16,10 +16,27 @@ If you search for *"surviving alone on a red planet"*, this app will correctly s
 ---
 
 ## 🚀 Demo in Action
-Watch how the application processes a natural language query and retrieves results in milliseconds:
+Watch the application in action with natural language queries:
 
 <p align="center">
-    <img src="./docs/assets/project_demo.webp" alt="Project Demo" width="800">
+    <img src="./docs/assets/video_demo.webp" alt="Project Demo" width="800">
+</p>
+
+---
+
+## 🔍 Semantic Search Examples (Guaranteed)
+If the video above is still loading, here are static "guaranteed" snaps of the system finding books based on meaning:
+
+### 1. "surviving on mars"
+Result: **The Martian** by Andy Weir
+<p align="center">
+    <img src="./docs/assets/mars_search.png" alt="Mars Search Results" width="800">
+</p>
+
+### 2. "dystopian future"
+Result: **1984** by George Orwell
+<p align="center">
+    <img src="./docs/assets/dystopian_search.png" alt="Dystopian Search Results" width="800">
 </p>
 
 ---
